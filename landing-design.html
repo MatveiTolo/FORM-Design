@@ -27,7 +27,7 @@
   *{margin:0;padding:0;box-sizing:border-box;}
   html{scroll-behavior:smooth;scrollbar-width:thin;scrollbar-color:rgba(0,0,0,0.22) transparent;}
   body{
-    background:var(--bg);
+    background:linear-gradient(180deg, #0a0a0b 0, #e2e2e4 6vh, #ffffff 165vh);
     color:var(--ink);
     font-family:'JetBrains Mono',monospace;
     overflow-x:hidden;
@@ -108,29 +108,84 @@
 
   header.nav{
     position:sticky;top:0;z-index:50;
-    background:rgba(255,255,255,0.6);
-    backdrop-filter:blur(22px) saturate(160%);
-    -webkit-backdrop-filter:blur(22px) saturate(160%);
-    border-bottom:1px solid rgba(0,0,0,0.07);
-    transition:background .35s ease, border-color .35s ease;
+    background:rgba(0,0,0,0.32);
+    backdrop-filter:blur(20px) saturate(120%);
+    -webkit-backdrop-filter:blur(20px) saturate(120%);
+    border-bottom:1px solid rgba(255,255,255,0.09);
+    transition:background .4s ease, border-color .4s ease;
   }
-  header.nav.scrolled{
-    background:rgba(255,255,255,0.86);
-    border-color:rgba(0,0,0,0.1);
+  header.nav.scrolled:not(.on-light){background:rgba(0,0,0,0.4);}
+  header.nav.on-light{
+    background:rgba(255,255,255,0.055);
+    border-bottom-color:rgba(0,0,0,0.07);
   }
-  .nav .wrap{display:flex;align-items:center;justify-content:space-between;height:74px;transition:height .35s ease;}
-  header.nav.scrolled .wrap{height:62px;}
-  .logo{display:flex;align-items:center;gap:10px;font-family:'JetBrains Mono',monospace;font-weight:500;font-size:18px;letter-spacing:-0.01em;}
-  .logo-mark{width:20px;height:20px;border-radius:7px;background:var(--grad-accent);flex:0 0 auto;box-shadow:0 4px 14px rgba(10,10,10,0.22);transition:transform .5s cubic-bezier(.16,1,.3,1), border-radius .5s ease;}
+  header.nav.on-light.scrolled{
+    background:rgba(255,255,255,0.09);
+    border-bottom-color:rgba(0,0,0,0.1);
+  }
+  .nav .wrap{display:flex;align-items:center;justify-content:space-between;height:58px;transition:height .35s ease;}
+  header.nav.scrolled .wrap{height:50px;}
+  .logo{
+    display:flex;align-items:center;gap:9px;font-family:'JetBrains Mono',monospace;font-weight:500;font-size:15.5px;letter-spacing:-0.01em;
+    color:var(--ink);
+    transition:color .4s ease, text-shadow .4s ease;
+  }
+  header.nav:not(.on-light) .logo{
+    color:#fff;
+    text-shadow:0 0 6px rgba(255,255,255,0.75), 0 0 16px rgba(255,255,255,0.4), 0 0 30px rgba(255,255,255,0.18);
+  }
+  .logo-mark{
+    width:18px;height:18px;border-radius:6px;background:var(--ink);flex:0 0 auto;
+    box-shadow:0 4px 14px rgba(10,10,10,0.2);
+    transition:transform .5s cubic-bezier(.16,1,.3,1), border-radius .5s ease, background .4s ease, box-shadow .4s ease;
+  }
+  header.nav .logo-mark{cursor:pointer;}
+  header.nav:not(.on-light) .logo-mark{background:#fff;box-shadow:0 0 14px rgba(255,255,255,0.35);}
   .logo:hover .logo-mark{transform:rotate(135deg);border-radius:50%;}
-  nav.links{display:flex;gap:32px;}
-  nav.links a{font-family:'JetBrains Mono',monospace;font-size:11px;letter-spacing:0.06em;text-transform:uppercase;color:var(--ink-2);transition:color .2s ease;position:relative;padding-bottom:3px;}
+  .logo-mark.colorful{
+    background:linear-gradient(120deg, #ff5f6d, #ffc371, #4fd39a, #4fa8ff, #b06cff, #ff5f6d) !important;
+    background-size:300% 300%;
+    animation:logoRainbow 4s ease-in-out infinite;
+    box-shadow:0 0 18px rgba(180,120,255,0.4) !important;
+  }
+  @keyframes logoRainbow{
+    0%{background-position:0% 50%;}
+    50%{background-position:100% 50%;}
+    100%{background-position:0% 50%;}
+  }
+  nav.links{display:flex;gap:30px;}
+  nav.links a{
+    display:inline-flex;align-items:baseline;gap:6px;
+    font-family:'JetBrains Mono',monospace;font-size:11px;letter-spacing:0.06em;text-transform:uppercase;
+    color:rgba(255,255,255,0.5);transition:color .3s ease, text-shadow .3s ease;position:relative;padding-bottom:3px;
+  }
+  header.nav.on-light nav.links a{color:var(--ink-2);}
+  nav.links a .nav-idx{font-size:9px;color:rgba(255,255,255,0.26);transition:color .3s ease;}
+  header.nav.on-light nav.links a .nav-idx{color:var(--ink-3);}
   nav.links a::after{
     content:'';position:absolute;left:0;bottom:0;width:0;height:1px;
-    background:var(--ink);transition:width .3s cubic-bezier(.16,1,.3,1);
+    background:#fff;box-shadow:0 0 8px rgba(255,255,255,0.7);transition:width .3s cubic-bezier(.16,1,.3,1), background .4s ease, box-shadow .4s ease;
   }
-  nav.links a:hover{color:var(--ink);}
-  nav.links a:hover::after{width:100%;}
+  header.nav.on-light nav.links a::after{background:var(--ink);box-shadow:none;}
+  nav.links a:hover,
+  nav.links a.active{
+    color:#fff;
+    text-shadow:0 0 6px rgba(255,255,255,0.7), 0 0 16px rgba(255,255,255,0.35);
+  }
+  header.nav.on-light nav.links a:hover,
+  header.nav.on-light nav.links a.active{
+    color:var(--ink);
+    text-shadow:none;
+  }
+  nav.links a:hover .nav-idx,
+  nav.links a.active .nav-idx{color:rgba(255,255,255,0.65);}
+  header.nav.on-light nav.links a:hover .nav-idx,
+  header.nav.on-light nav.links a.active .nav-idx{color:var(--ink-2);}
+  nav.links a:hover::after,
+  nav.links a.active::after{width:100%;}
+  .nav .btn-primary{border:1px solid rgba(255,255,255,0.14);transition:border-color .4s ease;}
+  header.nav.on-light .nav .btn-primary{border-color:transparent;}
+
 
   .btn{
     display:inline-flex;align-items:center;justify-content:center;gap:8px;
@@ -189,13 +244,29 @@
   /* HERO — dark, technical, generated shimmer visual as the focus */
   .hero{
     display:flex;flex-direction:column;
-    min-height:100vh;padding-top:88px;overflow:hidden;position:relative;
+    min-height:100vh;padding-top:72px;overflow:hidden;position:relative;
     background:radial-gradient(120% 90% at 50% 30%, #101012 0%, #050505 62%);
   }
+  .hero-vignette{
+    position:absolute;inset:0;z-index:3;pointer-events:none;
+    background:radial-gradient(115% 95% at 50% 38%, transparent 42%, rgba(0,0,0,0.6) 100%);
+  }
+  .hero-bar{
+    z-index:4;height:27px;flex-shrink:0;
+    display:flex;align-items:center;justify-content:space-between;
+    padding:0 28px;pointer-events:none;
+    font-family:'JetBrains Mono',monospace;font-size:9px;letter-spacing:0.13em;text-transform:uppercase;
+    color:rgba(255,255,255,0.36);
+  }
+  .hero-bar.top{position:absolute;left:0;right:0;top:0;border-bottom:1px solid rgba(255,255,255,0.08);}
+  .hero-bar.bottom{position:relative;margin-top:10px;border-top:1px solid rgba(255,255,255,0.08);}
+  .hero-bar .rec{display:inline-flex;align-items:center;gap:6px;}
+  .hero-bar .rec i{width:5px;height:5px;border-radius:50%;background:#fff;animation:recBlink 1.6s ease-in-out infinite;}
+  @keyframes recBlink{0%,100%{opacity:1;}50%{opacity:0.15;}}
   .hero-visual{
     flex:1;position:relative;
     display:flex;align-items:center;justify-content:center;
-    min-height:340px;padding:20px 0;
+    min-height:380px;padding:20px 0;
   }
   .hero-canvas-wrap{
     position:relative;z-index:1;
@@ -205,8 +276,11 @@
   .hero-glow{
     position:absolute;left:50%;top:50%;transform:translate(-50%,-50%);
     width:52vw;height:52vw;max-width:620px;max-height:620px;
-    background:radial-gradient(circle, rgba(255,255,255,0.06), transparent 66%);
+    background:
+      radial-gradient(circle, rgba(255,255,255,0.1), transparent 34%),
+      radial-gradient(circle, rgba(255,255,255,0.06), transparent 66%);
     pointer-events:none;
+    transition:transform .5s cubic-bezier(.2,.7,.2,1);
   }
 
   /* HUD framing — orbital rings, scanner corners, live readout */
@@ -214,12 +288,14 @@
     position:absolute;left:50%;top:50%;transform:translate(-50%,-50%);
     width:min(52vw,520px);height:min(52vw,520px);
     pointer-events:none;
+    transition:transform .5s cubic-bezier(.2,.7,.2,1);
   }
   .hero-rings svg{width:100%;height:100%;overflow:visible;}
   .hero-rings .ring{
     fill:none;stroke:rgba(255,255,255,0.14);stroke-width:1;
     transform-origin:center;transform-box:fill-box;
   }
+  .hero-rings .ring1{stroke:url(#ringSheen);stroke-width:1.1;}
   .hero-rings .ring-dash{stroke-dasharray:1.2 7;stroke:rgba(255,255,255,0.28);}
   .hero-rings .ring1{animation:ringSpin 34s linear infinite;}
   .hero-rings .ring2{animation:ringSpin 46s linear infinite reverse;}
@@ -229,11 +305,13 @@
     position:absolute;left:50%;top:50%;transform:translate(-50%,-50%);
     width:min(46vw,460px);height:min(46vw,460px);
     pointer-events:none;
+    transition:transform .5s cubic-bezier(.2,.7,.2,1);
   }
   .hero-scan-frame i{
     position:absolute;width:16px;height:16px;
-    border:1px solid rgba(255,255,255,0.32);
-    opacity:0.8;
+    border:1px solid rgba(255,255,255,0.4);
+    box-shadow:0 0 8px rgba(255,255,255,0.18);
+    opacity:0.85;
   }
   .hero-scan-frame i:nth-child(1){top:0;left:0;border-right:none;border-bottom:none;}
   .hero-scan-frame i:nth-child(2){top:0;right:0;border-left:none;border-bottom:none;}
@@ -251,36 +329,43 @@
     display:flex;align-items:flex-end;justify-content:space-between;flex-wrap:wrap;
     gap:20px 40px;padding-bottom:22px;
   }
-  .eyebrow{display:inline-flex;align-items:center;gap:12px;margin-bottom:18px;}
+  .eyebrow{display:inline-flex;align-items:center;gap:10px;margin-bottom:12px;}
   .eyebrow-badge{
-    font-family:'JetBrains Mono',monospace;font-size:10px;letter-spacing:0.14em;text-transform:uppercase;
-    padding:5px 11px;border:1px solid rgba(255,255,255,0.22);border-radius:100px;
-    color:rgba(255,255,255,0.88);
+    font-family:'JetBrains Mono',monospace;font-size:9.5px;letter-spacing:0.13em;text-transform:uppercase;
+    padding:4px 10px;border:1px solid rgba(255,255,255,0.2);border-radius:100px;
+    color:rgba(255,255,255,0.82);
   }
-  .eyebrow-divider{width:20px;height:1px;background:rgba(255,255,255,0.22);flex-shrink:0;}
+  .eyebrow-divider{width:16px;height:1px;background:rgba(255,255,255,0.2);flex-shrink:0;}
   .eyebrow-label{
-    font-family:'JetBrains Mono',monospace;font-size:10px;letter-spacing:0.16em;text-transform:uppercase;
-    color:rgba(255,255,255,0.46);
+    font-family:'JetBrains Mono',monospace;font-size:9.5px;letter-spacing:0.15em;text-transform:uppercase;
+    color:rgba(255,255,255,0.42);
   }
   h1.hero-title{
-    display:flex;flex-direction:column;gap:4px;max-width:460px;
+    display:flex;flex-direction:row;flex-wrap:wrap;align-items:baseline;
+    gap:6px 10px;max-width:480px;
     font-weight:400;letter-spacing:0;
   }
   h1.hero-title .line1{
-    font-size:clamp(13.5px,1.3vw,15.5px);color:rgba(255,255,255,0.5);
-    letter-spacing:0.02em;
+    font-size:clamp(13px,1.2vw,14.5px);color:rgba(255,255,255,0.48);
+    letter-spacing:0.01em;
   }
   h1.hero-title .line2{
-    font-size:clamp(20px,2vw,25px);font-weight:500;color:rgba(255,255,255,0.92);
-    line-height:1.45;
+    font-size:clamp(18px,1.8vw,22px);font-weight:500;color:rgba(255,255,255,0.94);
+    line-height:1.3;
   }
   h1.hero-title .serif{
     font-style:italic;font-weight:400;color:#fff;
   }
   .hero-cta{display:flex;gap:12px;flex-wrap:wrap;flex-shrink:0;}
+  .hero-cta .btn-primary{box-shadow:0 14px 28px -14px rgba(10,10,10,0.5), 0 0 26px rgba(255,255,255,0.12);}
+  .hero-cta .btn-primary:hover{box-shadow:0 18px 34px -14px rgba(10,10,10,0.6), 0 0 34px rgba(255,255,255,0.2);}
   .hero-strip{
     display:flex;flex-wrap:wrap;gap:8px 30px;
-    padding:20px 0;border-top:1px solid rgba(255,255,255,0.09);
+    padding:14px 0;position:relative;
+  }
+  .hero-strip::before{
+    content:'';position:absolute;top:0;left:0;right:0;height:1px;
+    background:linear-gradient(90deg, transparent, rgba(255,255,255,0.14) 20%, rgba(255,255,255,0.14) 80%, transparent);
   }
   .hero-strip .step{
     display:flex;align-items:center;gap:8px;
@@ -304,6 +389,47 @@
 
   .fade-up{opacity:0;transform:translateY(14px);transition:opacity .8s cubic-bezier(.16,1,.3,1), transform .8s cubic-bezier(.16,1,.3,1);}
   .fade-up.in-view{opacity:1;transform:translateY(0);}
+
+  /* build-in — pieces fly in from the side and spring-settle into place */
+  .build-in{
+    opacity:0;
+    --fx:0px; --fr:0deg; --snap:rgba(10,10,10,0.28);
+  }
+  .invert .build-in{--snap:rgba(255,255,255,0.4);}
+  .build-in:nth-child(odd){--fx:-46px; --fr:-9deg;}
+  .build-in:nth-child(even){--fx:46px; --fr:9deg;}
+  .build-in:nth-child(1){animation-delay:0ms;}
+  .build-in:nth-child(2){animation-delay:100ms;}
+  .build-in:nth-child(3){animation-delay:200ms;}
+  .build-in:nth-child(4){animation-delay:300ms;}
+  .build-in.in-view{
+    opacity:1;
+    animation-name:assemblePiece;
+    animation-duration:.9s;
+    animation-timing-function:cubic-bezier(.22,1,.36,1);
+    animation-fill-mode:both;
+  }
+  @keyframes assemblePiece{
+    0%{
+      opacity:0;
+      transform:translate(var(--fx),46px) scale(0.7) rotate(var(--fr));
+      box-shadow:0 0 0 0 rgba(0,0,0,0);
+    }
+    45%{opacity:1;}
+    64%{
+      transform:translate(calc(var(--fx) * -0.12), -10px) scale(1.07) rotate(calc(var(--fr) * -0.22));
+    }
+    80%{
+      transform:translate(calc(var(--fx) * 0.05), 4px) scale(0.98) rotate(calc(var(--fr) * 0.12));
+      box-shadow:0 0 0 1.5px var(--snap);
+    }
+    92%{box-shadow:0 0 0 1.5px var(--snap);}
+    100%{
+      opacity:1;
+      transform:translate(0,0) scale(1) rotate(0deg);
+      box-shadow:0 0 0 0 rgba(0,0,0,0);
+    }
+  }
 
   .section-head{max-width:520px;margin-bottom:44px;}
   .section-head .mono{margin-bottom:14px;display:block;}
@@ -345,7 +471,7 @@
   @media (max-width:560px){.steps-grid{grid-template-columns:1fr;}}
 
   /* SHOWCASE — flat monochrome tiles, purely CSS */
-  .showcase-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:16px;}
+  .showcase-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:16px;perspective:1000px;}
   .show-card{
     border-radius:18px;overflow:hidden;aspect-ratio:4/3;position:relative;
     border:1px solid var(--glass-border);
@@ -353,8 +479,15 @@
     display:flex;flex-direction:column;justify-content:space-between;
     padding:16px 18px;
     transition:transform .45s cubic-bezier(.2,.7,.2,1), border-color .4s ease, box-shadow .4s ease;
+    will-change:transform;
   }
-  .show-card:hover{transform:translateY(-5px);border-color:rgba(0,0,0,0.22);box-shadow:0 26px 44px -28px rgba(0,0,0,0.22);}
+  .show-card:hover{transform:translateY(-5px);border-color:rgba(0,0,0,0.22);box-shadow:0 30px 50px -26px rgba(0,0,0,0.28);}
+  .show-card::after{
+    content:'';position:absolute;inset:0;z-index:3;opacity:0;pointer-events:none;
+    background:radial-gradient(240px circle at var(--mx,50%) var(--my,50%), rgba(255,255,255,0.65), transparent 68%);
+    mix-blend-mode:overlay;transition:opacity .35s ease;
+  }
+  .show-card:hover::after{opacity:1;}
   .show-card .idx{font-family:'JetBrains Mono',monospace;font-size:10px;letter-spacing:0.08em;color:var(--ink-3);align-self:flex-end;}
   .show-card .wire{
     position:absolute;inset:0;display:flex;align-items:center;justify-content:center;
@@ -374,6 +507,7 @@
   }
   @media (max-width:900px){.showcase-grid{grid-template-columns:1fr 1fr;}}
   @media (max-width:560px){.showcase-grid{grid-template-columns:1fr;}}
+
 
   /* PIPELINE */
   .pipeline{display:grid;grid-template-columns:1fr 1.15fr;gap:1px;background:var(--glass-border);border:1px solid var(--glass-border);border-radius:var(--radius);overflow:hidden;}
@@ -433,10 +567,10 @@
   <div class="wrap">
     <a href="#top" class="logo"><span class="logo-mark"></span>FORM-A</a>
     <nav class="links">
-      <a href="#features">Возможности</a>
-      <a href="#how">Как это работает</a>
-      <a href="#showcase">Примеры</a>
-      <a href="#pricing">Тарифы</a>
+      <a href="#features"><span class="nav-idx">01</span>Возможности</a>
+      <a href="#how"><span class="nav-idx">02</span>Как это работает</a>
+      <a href="#showcase"><span class="nav-idx">03</span>Примеры</a>
+      <a href="#pricing"><span class="nav-idx">04</span>Тарифы</a>
     </nav>
     <a href="#cta" class="btn btn-primary btn-sm">Начать бесплатно</a>
   </div>
@@ -445,10 +579,23 @@
 <main id="top">
 
   <section class="hero invert">
+    <div class="hero-vignette"></div>
+    <div class="hero-bar top">
+      <span>FORM-A ENGINE</span>
+      <span class="rec"><i></i>REC</span>
+    </div>
     <div class="hero-visual">
       <div class="hero-glow"></div>
       <div class="hero-rings">
         <svg viewBox="0 0 100 100">
+          <defs>
+            <linearGradient id="ringSheen" x1="0%" y1="0%" x2="100%" y2="100%">
+              <stop offset="0%" stop-color="#ffffff" stop-opacity="0.05"/>
+              <stop offset="45%" stop-color="#ffffff" stop-opacity="0.4"/>
+              <stop offset="55%" stop-color="#ffffff" stop-opacity="0.4"/>
+              <stop offset="100%" stop-color="#ffffff" stop-opacity="0.05"/>
+            </linearGradient>
+          </defs>
           <ellipse class="ring ring1" cx="50" cy="50" rx="46" ry="18"/>
           <ellipse class="ring ring2 ring-dash" cx="50" cy="50" rx="38" ry="38"/>
         </svg>
@@ -481,6 +628,10 @@
         <div class="step">Export</div>
       </div>
     </div>
+    <div class="hero-bar bottom">
+      <span>AI 3D SCAN</span>
+      <span id="heroTimecode">00:00</span>
+    </div>
     <div class="hero-fade"></div>
   </section>
 
@@ -500,14 +651,14 @@
   <section class="pad" id="features">
     <div class="wrap">
       <div class="bento reveal">
-        <div class="bento-lead">
+        <div class="bento-lead build-in">
           <span class="mono">Технология</span>
           <h3>ИИ видит форму, как вы</h3>
           <p>Понимает геометрию и материалы — а не дорисовывает пиксели.</p>
         </div>
-        <div class="bento-stat s1"><span class="stat-num" data-count-to="8" data-suffix=" сек">0 сек</span><span class="stat-label">Генерация</span></div>
-        <div class="bento-stat s2"><span class="stat-num" data-count-to="40" data-suffix="+">0+</span><span class="stat-label">Форматов</span></div>
-        <div class="bento-formats">
+        <div class="bento-stat s1 build-in"><span class="stat-num" data-count-to="8" data-suffix=" сек">0 сек</span><span class="stat-label">Генерация</span></div>
+        <div class="bento-stat s2 build-in"><span class="stat-num" data-count-to="40" data-suffix="+">0+</span><span class="stat-label">Форматов</span></div>
+        <div class="bento-formats build-in">
           <span class="flabel">Экспорт в любой пайплайн</span>
           <div class="fpills"><span>GLB</span><span>OBJ</span><span>FBX</span><span>USDZ</span><span>STL</span></div>
         </div>
@@ -522,10 +673,10 @@
         <h2>Как это <span class="serif">работает</span></h2>
       </div>
       <div class="steps-grid reveal">
-        <div class="step-card"><span class="step-num">01</span><h4>Prompt</h4></div>
-        <div class="step-card"><span class="step-num">02</span><h4>Generate</h4></div>
-        <div class="step-card"><span class="step-num">03</span><h4>Refine</h4></div>
-        <div class="step-card"><span class="step-num">04</span><h4>Export</h4></div>
+        <div class="step-card build-in"><span class="step-num">01</span><h4>Prompt</h4></div>
+        <div class="step-card build-in"><span class="step-num">02</span><h4>Generate</h4></div>
+        <div class="step-card build-in"><span class="step-num">03</span><h4>Refine</h4></div>
+        <div class="step-card build-in"><span class="step-num">04</span><h4>Export</h4></div>
       </div>
     </div>
   </section>
@@ -548,10 +699,10 @@
           <h3>40 000 часов обучения</h3>
         </div>
         <div class="pipeline-bars" id="pipelineBars">
-          <div class="pbar"><span class="pct">30%</span><div><div class="fill-wrap"><div class="fill" data-w="30"></div></div><span class="plabel">Понимание запроса</span></div></div>
-          <div class="pbar"><span class="pct">25%</span><div><div class="fill-wrap"><div class="fill" data-w="25"></div></div><span class="plabel">Генерация геометрии</span></div></div>
-          <div class="pbar"><span class="pct">25%</span><div><div class="fill-wrap"><div class="fill" data-w="25"></div></div><span class="plabel">Текстуры и материалы</span></div></div>
-          <div class="pbar"><span class="pct">20%</span><div><div class="fill-wrap"><div class="fill" data-w="20"></div></div><span class="plabel">Оптимизация меша</span></div></div>
+          <div class="pbar build-in"><span class="pct">30%</span><div><div class="fill-wrap"><div class="fill" data-w="30"></div></div><span class="plabel">Понимание запроса</span></div></div>
+          <div class="pbar build-in"><span class="pct">25%</span><div><div class="fill-wrap"><div class="fill" data-w="25"></div></div><span class="plabel">Генерация геометрии</span></div></div>
+          <div class="pbar build-in"><span class="pct">25%</span><div><div class="fill-wrap"><div class="fill" data-w="25"></div></div><span class="plabel">Текстуры и материалы</span></div></div>
+          <div class="pbar build-in"><span class="pct">20%</span><div><div class="fill-wrap"><div class="fill" data-w="20"></div></div><span class="plabel">Оптимизация меша</span></div></div>
         </div>
       </div>
     </div>
@@ -564,21 +715,21 @@
         <h2>Начните <span class="serif">бесплатно</span></h2>
       </div>
       <div class="pricing-grid reveal">
-        <div class="price-card glass">
+        <div class="price-card glass build-in">
           <span class="price-tag">Free</span>
           <div class="price-name">Старт</div>
           <div class="price-cost">0 ₽<span> / навсегда</span></div>
           <ul class="price-feats"><li>3 модели в месяц</li><li>GLB, OBJ</li><li>Базовое качество</li></ul>
           <a href="#cta" class="btn btn-ghost">Попробовать</a>
         </div>
-        <div class="price-card glass highlight">
+        <div class="price-card glass highlight build-in">
           <span class="price-tag">Pro · Популярный</span>
           <div class="price-name">Профи</div>
           <div class="price-cost">990 ₽<span> / в месяц</span></div>
           <ul class="price-feats"><li>Безлимит генераций</li><li>Все форматы экспорта</li><li>Приоритетная очередь</li><li>Без водяных знаков</li></ul>
           <a href="#cta" class="btn btn-primary">Выбрать Pro</a>
         </div>
-        <div class="price-card glass">
+        <div class="price-card glass build-in">
           <span class="price-tag">Studio</span>
           <div class="price-name">Команда</div>
           <div class="price-cost">По запросу</div>
@@ -622,6 +773,7 @@
 
 <script>
   const reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+  const isFinePointer = window.matchMedia('(pointer:fine)').matches;
 
   // scroll progress + header shrink + hero parallax
   const progressBar = document.getElementById('scrollProgress');
@@ -638,6 +790,7 @@
     const pct = docHeight > 0 ? (scrollTop/docHeight)*100 : 0;
     if(progressBar) progressBar.style.width = pct + '%';
     if(navHeader) navHeader.classList.toggle('scrolled', scrollTop > 40);
+    if(navHeader && heroHeight > 0) navHeader.classList.toggle('on-light', scrollTop > heroHeight - 90);
 
     if(heroSection && !reduceMotion && heroHeight > 0){
       const progress = Math.min(1, Math.max(0, scrollTop / heroHeight));
@@ -654,9 +807,68 @@
   }, {passive:true});
   onScroll();
 
+  // logo click — toggles a playful colorful mode until clicked again
+  const headerLogoMark = document.querySelector('header.nav .logo-mark');
+  if(headerLogoMark){
+    headerLogoMark.addEventListener('click', (e)=>{
+      e.preventDefault();
+      e.stopPropagation();
+      headerLogoMark.classList.toggle('colorful');
+    });
+  }
+
+  // scrollspy — highlights the nav link matching the section in view
+  const navLinks = document.querySelectorAll('nav.links a[href^="#"]');
+  const spySections = Array.from(navLinks)
+    .map(a => document.querySelector(a.getAttribute('href')))
+    .filter(Boolean);
+  if(spySections.length){
+    const spyIo = new IntersectionObserver((entries)=>{
+      entries.forEach(entry=>{
+        if(entry.isIntersecting){
+          const id = '#' + entry.target.id;
+          navLinks.forEach(a => a.classList.toggle('active', a.getAttribute('href') === id));
+        }
+      });
+    }, { rootMargin: '-45% 0px -50% 0px', threshold: 0 });
+    spySections.forEach(sec => spyIo.observe(sec));
+  }
+
+  // hero mouse parallax — depth layers drift slightly with the cursor
+  const heroVisualForParallax = document.querySelector('.hero-visual');
+  const parallaxLayers = [
+    { el: document.querySelector('.hero-glow'), factor: 4 },
+    { el: document.querySelector('.hero-rings'), factor: 6 },
+    { el: document.querySelector('.hero-scan-frame'), factor: 3 }
+  ].filter(l => l.el);
+  if(heroVisualForParallax && isFinePointer && !reduceMotion && parallaxLayers.length){
+    heroVisualForParallax.addEventListener('mousemove', (e)=>{
+      const r = heroVisualForParallax.getBoundingClientRect();
+      const dx = (e.clientX - r.left - r.width/2) / (r.width/2);
+      const dy = (e.clientY - r.top - r.height/2) / (r.height/2);
+      parallaxLayers.forEach(({el, factor})=>{
+        el.style.transform = `translate(calc(-50% + ${(dx*factor).toFixed(1)}px), calc(-50% + ${(dy*factor).toFixed(1)}px))`;
+      });
+    });
+    heroVisualForParallax.addEventListener('mouseleave', ()=>{
+      parallaxLayers.forEach(({el})=>{ el.style.transform = 'translate(-50%,-50%)'; });
+    });
+  }
+
+  // hero timecode — ticks up like a camera recording counter
+  const timecodeEl = document.getElementById('heroTimecode');
+  if(timecodeEl && !reduceMotion){
+    let elapsedSec = 0;
+    setInterval(()=>{
+      elapsedSec++;
+      const m = String(Math.floor(elapsedSec/60)).padStart(2,'0');
+      const s = String(elapsedSec%60).padStart(2,'0');
+      timecodeEl.textContent = `${m}:${s}`;
+    }, 1000);
+  }
+
   // cursor glow (desktop only)
   const cursorGlow = document.getElementById('cursorGlow');
-  const isFinePointer = window.matchMedia('(pointer:fine)').matches;
   if(cursorGlow && isFinePointer){
     let cgX=window.innerWidth/2, cgY=window.innerHeight/2, curX=cgX, curY=cgY;
     window.addEventListener('mousemove', (e)=>{ cgX=e.clientX; cgY=e.clientY; });
@@ -675,7 +887,7 @@
   });
 
   // generic reveal
-  const revealEls = document.querySelectorAll('.reveal');
+  const revealEls = document.querySelectorAll('.reveal, .build-in');
   const io = new IntersectionObserver((entries)=>{
     entries.forEach(e=>{ if(e.isIntersecting){ e.target.classList.add('in-view'); io.unobserve(e.target); } });
   }, {threshold:0.12});
@@ -726,12 +938,29 @@
   if(grid){
     categories.forEach((name,i)=>{
       const card = document.createElement('div');
-      card.className = 'show-card';
+      card.className = 'show-card build-in';
+      card.style.animationDelay = `${i*90}ms`;
+      const sign = i % 2 === 0 ? -1 : 1;
+      card.style.setProperty('--fx', `${sign * (40 + (i%3)*8)}px`);
+      card.style.setProperty('--fr', `${sign * (7 + (i%3)*2)}deg`);
       card.innerHTML =
         `<span class="idx">0${i+1}</span>` +
         `<div class="wire"><svg viewBox="0 0 100 100">${WIREFRAMES[name]}</svg></div>` +
         `<span class="tag">${name}</span>`;
       grid.appendChild(card);
+      io.observe(card); // cascades in, staggered by the delay above
+
+      if(isFinePointer && !reduceMotion){
+        card.addEventListener('mousemove', (e)=>{
+          const r = card.getBoundingClientRect();
+          const px = (e.clientX - r.left)/r.width - 0.5;
+          const py = (e.clientY - r.top)/r.height - 0.5;
+          card.style.transform = `translateY(-5px) rotateX(${(-py*9).toFixed(2)}deg) rotateY(${(px*9).toFixed(2)}deg)`;
+          card.style.setProperty('--mx', `${(px+0.5)*100}%`);
+          card.style.setProperty('--my', `${(py+0.5)*100}%`);
+        });
+        card.addEventListener('mouseleave', ()=>{ card.style.transform = ''; });
+      }
     });
   }
 
