@@ -1,0 +1,615 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="description" content="Вход в FORM-A — генеративный ИИ-движок для 3D-моделей.">
+<meta name="theme-color" content="#050505">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='9' fill='%230a0a0a'/%3E%3Crect x='10' y='10' width='12' height='12' rx='3' fill='%23fff'/%3E%3C/svg%3E">
+<title>Вход — FORM-A</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500&family=Instrument+Serif:ital@1&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --bg: #ffffff;
+    --ink: #0a0a0a;
+    --ink-2: #55555a;
+    --ink-3: #8e8e93;
+    --line: rgba(0,0,0,0.09);
+    --glass: rgba(0,0,0,0.028);
+    --glass-strong: rgba(0,0,0,0.05);
+    --glass-border: rgba(0,0,0,0.1);
+    --radius: 22px;
+    --grad-accent: linear-gradient(120deg, #0a0a0a, #55555a);
+  }
+
+  *{margin:0;padding:0;box-sizing:border-box;}
+  html{scrollbar-width:thin;scrollbar-color:rgba(0,0,0,0.22) transparent;}
+  body{
+    background:var(--bg);
+    color:var(--ink);
+    font-family:'JetBrains Mono',monospace;
+    overflow-x:hidden;
+    -webkit-font-smoothing:antialiased;
+    font-weight:400;
+    min-height:100vh;
+    display:flex;flex-direction:column;
+  }
+  body::after{
+    content:'';position:fixed;inset:0;z-index:90;pointer-events:none;
+    opacity:0.035;mix-blend-mode:overlay;
+    background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='140' height='140'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='2' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+    background-size:140px 140px;
+  }
+  ::-webkit-scrollbar{width:10px;height:10px;}
+  ::-webkit-scrollbar-track{background:var(--bg);}
+  ::-webkit-scrollbar-thumb{background:rgba(0,0,0,0.2);border-radius:10px;border:2px solid var(--bg);}
+  ::-webkit-scrollbar-thumb:hover{background:rgba(0,0,0,0.32);}
+  ::selection{background:rgba(10,10,10,0.15);color:var(--ink);}
+  a{color:inherit;text-decoration:none;}
+  button{font-family:inherit;cursor:pointer;}
+
+  h1,h2,h3{
+    font-family:'JetBrains Mono',monospace;
+    font-weight:500;
+    letter-spacing:-0.01em;
+    line-height:1.4;
+  }
+  .mono{
+    font-family:'JetBrains Mono',monospace;
+    text-transform:uppercase;
+    letter-spacing:0.15em;
+    font-size:10.5px;
+    color:var(--ink-3);
+  }
+  :focus-visible{outline:2px solid var(--ink);outline-offset:3px;border-radius:4px;}
+  .serif{
+    font-family:'Instrument Serif',serif;
+    font-style:italic;
+    font-weight:400;
+    letter-spacing:0;
+  }
+
+  #cursorGlow{
+    position:fixed;top:0;left:0;width:360px;height:360px;
+    border-radius:50%;pointer-events:none;z-index:1;
+    background:radial-gradient(circle, rgba(10,10,10,0.035), transparent 70%);
+    transform:translate(-50%,-50%);
+    will-change:transform;
+  }
+  @media (pointer:coarse){ #cursorGlow{display:none;} }
+
+  .wrap{max-width:1180px;margin:0 auto;padding:0 32px;position:relative;z-index:2;width:100%;}
+
+  .glass{
+    background:var(--glass);
+    border:1px solid var(--glass-border);
+    border-radius:var(--radius);
+    backdrop-filter:blur(20px) saturate(140%);
+    -webkit-backdrop-filter:blur(20px) saturate(140%);
+    box-shadow:0 1px 0 rgba(255,255,255,0.6) inset, 0 20px 50px -30px rgba(0,0,0,0.14);
+    position:relative;
+  }
+  .glass::before{
+    content:'';position:absolute;inset:0;border-radius:inherit;
+    background:linear-gradient(135deg, rgba(255,255,255,0.5), transparent 45%);
+    pointer-events:none;
+  }
+
+  header.nav{
+    position:sticky;top:0;z-index:50;
+    background:rgba(255,255,255,0.86);
+    backdrop-filter:blur(22px) saturate(160%);
+    -webkit-backdrop-filter:blur(22px) saturate(160%);
+    border-bottom:1px solid rgba(0,0,0,0.07);
+  }
+  .nav .wrap{display:flex;align-items:center;justify-content:space-between;height:70px;}
+  .logo{display:flex;align-items:center;gap:10px;font-family:'JetBrains Mono',monospace;font-weight:500;font-size:18px;letter-spacing:-0.01em;}
+  .logo-mark{width:20px;height:20px;border-radius:7px;background:var(--grad-accent);flex:0 0 auto;box-shadow:0 4px 14px rgba(10,10,10,0.22);transition:transform .5s cubic-bezier(.16,1,.3,1), border-radius .5s ease;}
+  .logo:hover .logo-mark{transform:rotate(135deg);border-radius:50%;}
+  .nav-meta{display:flex;align-items:center;gap:18px;}
+
+  .btn{
+    display:inline-flex;align-items:center;justify-content:center;gap:8px;
+    padding:12px 22px;border-radius:100px;
+    font-family:'JetBrains Mono',monospace;
+    font-size:11.5px;font-weight:500;letter-spacing:0.08em;text-transform:uppercase;
+    border:1px solid var(--glass-border);
+    transition:transform .3s cubic-bezier(.16,1,.3,1), box-shadow .3s ease, background .25s ease;
+    white-space:nowrap;
+    position:relative;overflow:hidden;
+    width:100%;
+  }
+  .btn.auto{width:auto;}
+  .btn .arrow{display:inline-block;transition:transform .35s cubic-bezier(.16,1,.3,1);}
+  .btn:hover .arrow{transform:translateX(4px);}
+  .btn-primary{
+    background:var(--ink);color:#fff;font-weight:500;border:none;
+    box-shadow:0 14px 28px -14px rgba(10,10,10,0.5);
+  }
+  .btn-primary::before{
+    content:'';position:absolute;top:0;left:-60%;width:40%;height:100%;
+    background:linear-gradient(120deg, transparent, rgba(255,255,255,0.28), transparent);
+    transform:skewX(-20deg);
+    transition:left .7s cubic-bezier(.16,1,.3,1);
+  }
+  .btn-primary:hover::before{left:130%;}
+  .btn-primary:hover{transform:translateY(-2px);box-shadow:0 18px 34px -14px rgba(10,10,10,0.6);}
+  .btn-primary:active{transform:translateY(0) scale(.98);}
+  .btn-ghost{background:var(--glass);color:var(--ink);backdrop-filter:blur(14px);}
+  .btn-ghost:hover{background:var(--glass-strong);border-color:rgba(0,0,0,0.18);transform:translateY(-2px);}
+  .btn-ghost:active{transform:translateY(0) scale(.98);}
+  .btn-sm{padding:10px 18px;font-size:11px;width:auto;}
+
+  .invert{background:var(--ink);color:#fff;}
+  .invert .mono{color:rgba(255,255,255,0.5);}
+
+  /* ===== AUTH LAYOUT ===== */
+  main.auth{flex:1;display:grid;grid-template-columns:1fr 1fr;min-height:calc(100vh - 71px);}
+
+  /* left: dark brand panel, echoes hero */
+  .auth-side{
+    position:relative;overflow:hidden;
+    display:flex;flex-direction:column;justify-content:space-between;
+    padding:52px 48px;
+    background:radial-gradient(120% 90% at 50% 20%, #101012 0%, #050505 62%);
+  }
+  .auth-side-top{position:relative;z-index:2;}
+  .auth-side .eyebrow{display:inline-flex;align-items:center;gap:12px;margin-bottom:22px;}
+  .eyebrow-badge{
+    font-family:'JetBrains Mono',monospace;font-size:10px;letter-spacing:0.14em;text-transform:uppercase;
+    padding:5px 11px;border:1px solid rgba(255,255,255,0.22);border-radius:100px;
+    color:rgba(255,255,255,0.88);
+  }
+  .eyebrow-divider{width:20px;height:1px;background:rgba(255,255,255,0.22);flex-shrink:0;}
+  .eyebrow-label{
+    font-family:'JetBrains Mono',monospace;font-size:10px;letter-spacing:0.16em;text-transform:uppercase;
+    color:rgba(255,255,255,0.46);
+  }
+  .auth-side h1{
+    max-width:380px;font-weight:400;letter-spacing:0;
+    font-size:clamp(22px,2.6vw,30px);line-height:1.4;color:rgba(255,255,255,0.94);
+  }
+  .auth-side h1 .serif{font-style:italic;font-weight:400;color:#fff;}
+
+  .auth-visual{
+    position:relative;flex:1;display:flex;align-items:center;justify-content:center;
+    min-height:260px;z-index:2;
+  }
+  .auth-glow{
+    position:absolute;left:50%;top:50%;transform:translate(-50%,-50%);
+    width:48vw;height:48vw;max-width:460px;max-height:460px;
+    background:radial-gradient(circle, rgba(255,255,255,0.07), transparent 66%);
+    pointer-events:none;
+  }
+  .auth-rings{
+    position:absolute;left:50%;top:50%;transform:translate(-50%,-50%);
+    width:min(44vw,380px);height:min(44vw,380px);pointer-events:none;
+  }
+  .auth-rings svg{width:100%;height:100%;overflow:visible;}
+  .auth-rings .ring{fill:none;stroke:rgba(255,255,255,0.14);stroke-width:1;transform-origin:center;transform-box:fill-box;}
+  .auth-rings .ring-dash{stroke-dasharray:1.2 7;stroke:rgba(255,255,255,0.28);}
+  .auth-rings .ring1{animation:ringSpin 34s linear infinite;}
+  .auth-rings .ring2{animation:ringSpin 46s linear infinite reverse;}
+  @keyframes ringSpin{from{transform:rotate(0deg);}to{transform:rotate(360deg);}}
+  .auth-canvas-wrap canvas{width:min(26vw,260px);height:min(26vw,260px);filter:drop-shadow(0 24px 40px rgba(0,0,0,0.55));position:relative;z-index:1;}
+
+  .auth-side-bottom{position:relative;z-index:2;display:flex;flex-direction:column;gap:16px;}
+  .auth-steps{display:flex;flex-wrap:wrap;gap:8px 26px;padding-top:20px;border-top:1px solid rgba(255,255,255,0.09);}
+  .auth-steps .step{
+    display:flex;align-items:center;gap:8px;
+    font-family:'JetBrains Mono',monospace;font-size:10px;letter-spacing:0.14em;text-transform:uppercase;
+    color:rgba(255,255,255,0.42);
+  }
+  .auth-steps .step::before{content:'';width:4px;height:4px;border-radius:50%;background:rgba(255,255,255,0.25);}
+  .auth-steps .step.active{color:rgba(255,255,255,0.85);}
+  .auth-steps .step.active::before{background:#fff;}
+  .auth-quote{font-size:13px;color:rgba(255,255,255,0.55);line-height:1.6;max-width:340px;}
+  .auth-quote b{color:rgba(255,255,255,0.9);font-weight:500;}
+
+  /* right: form panel */
+  .auth-form-side{
+    display:flex;align-items:center;justify-content:center;
+    padding:64px 40px;position:relative;
+  }
+  .auth-card{width:100%;max-width:400px;}
+  .auth-card-head{margin-bottom:32px;}
+  .auth-card-head .mono{display:block;margin-bottom:14px;}
+  .auth-card-head h2{font-size:clamp(20px,2.4vw,26px);margin-bottom:8px;}
+  .auth-card-head p{font-size:13px;color:var(--ink-2);line-height:1.6;}
+  .auth-card-head p a{color:var(--ink);border-bottom:1px solid var(--ink-3);transition:border-color .2s ease;}
+  .auth-card-head p a:hover{border-color:var(--ink);}
+  .text-link{color:var(--ink);border-bottom:1px solid var(--ink-3);cursor:pointer;transition:border-color .2s ease;}
+  .text-link:hover{border-color:var(--ink);}
+
+  .field{display:flex;flex-direction:column;gap:8px;margin-bottom:18px;}
+  .field label{
+    font-family:'JetBrains Mono',monospace;font-size:10.5px;letter-spacing:0.12em;text-transform:uppercase;
+    color:var(--ink-3);
+  }
+  .field-input{
+    position:relative;display:flex;align-items:center;
+    background:var(--glass);border:1px solid var(--glass-border);border-radius:13px;
+    transition:border-color .2s ease, background .2s ease;
+  }
+  .field-input:focus-within{border-color:rgba(0,0,0,0.32);background:var(--glass-strong);}
+  .field-input input{
+    width:100%;border:none;background:transparent;outline:none;
+    padding:13px 14px;font-family:'JetBrains Mono',monospace;font-size:13.5px;color:var(--ink);
+  }
+  .field-input input::placeholder{color:var(--ink-3);}
+  .field-hint{font-size:11px;color:var(--ink-3);line-height:1.5;}
+  .field-hint.error{color:#b3352d;}
+  .toggle-pass{
+    background:none;border:none;padding:0 14px;color:var(--ink-3);
+    font-family:'JetBrains Mono',monospace;font-size:10px;letter-spacing:0.08em;text-transform:uppercase;
+    flex:0 0 auto;transition:color .2s ease;
+  }
+  .toggle-pass:hover{color:var(--ink);}
+
+  .field-row-between{display:flex;align-items:center;justify-content:space-between;gap:12px;}
+
+  .field-check{display:flex;align-items:flex-start;gap:10px;margin-bottom:24px;}
+  .field-check input{
+    appearance:none;-webkit-appearance:none;
+    width:16px;height:16px;flex:0 0 auto;margin-top:2px;
+    border:1px solid var(--glass-border);border-radius:5px;background:var(--glass);
+    cursor:pointer;position:relative;transition:background .2s ease, border-color .2s ease;
+  }
+  .field-check input:checked{background:var(--ink);border-color:var(--ink);}
+  .field-check input:checked::after{
+    content:'';position:absolute;left:5px;top:1.5px;width:4px;height:8px;
+    border:solid #fff;border-width:0 1.6px 1.6px 0;transform:rotate(40deg);
+  }
+  .field-check label{font-size:12.5px;color:var(--ink-2);line-height:1.55;cursor:pointer;}
+
+  .remember-row{display:flex;align-items:center;justify-content:space-between;margin-bottom:26px;}
+  .remember-row .field-check{margin-bottom:0;}
+  .forgot-link{
+    font-family:'JetBrains Mono',monospace;font-size:11.5px;color:var(--ink-2);
+    border-bottom:1px solid var(--ink-3);cursor:pointer;transition:color .2s ease, border-color .2s ease;
+    background:none;border-top:none;border-left:none;border-right:none;padding:0;
+  }
+  .forgot-link:hover{color:var(--ink);border-color:var(--ink);}
+
+  .divider{display:flex;align-items:center;gap:14px;margin:26px 0;}
+  .divider span{
+    font-family:'JetBrains Mono',monospace;font-size:10px;letter-spacing:0.12em;text-transform:uppercase;color:var(--ink-3);
+    white-space:nowrap;
+  }
+  .divider::before,.divider::after{content:'';flex:1;height:1px;background:var(--line);}
+
+  .oauth-row{display:flex;gap:10px;}
+  .oauth-row .btn{padding:11px 16px;font-size:11px;}
+  .oauth-row svg{width:15px;height:15px;flex:0 0 auto;}
+
+  .auth-foot-link{text-align:center;margin-top:28px;font-size:12.5px;color:var(--ink-2);}
+
+  .fade-up{opacity:0;transform:translateY(14px);transition:opacity .8s cubic-bezier(.16,1,.3,1), transform .8s cubic-bezier(.16,1,.3,1);}
+  .fade-up.in-view{opacity:1;transform:translateY(0);}
+
+  footer.mini{border-top:1px solid var(--line);padding:22px 0;}
+  .mini-row{display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:10px;}
+  .mini-row span{font-family:'JetBrains Mono',monospace;font-size:10px;letter-spacing:0.1em;color:var(--ink-3);text-transform:uppercase;}
+
+  @media (max-width:980px){
+    main.auth{grid-template-columns:1fr;}
+    .auth-side{display:none;}
+    .auth-form-side{padding:48px 24px;}
+  }
+  @media (max-width:480px){
+    .nav .wrap{height:64px;}
+    .oauth-row{flex-direction:column;}
+  }
+
+  @media (prefers-reduced-motion: reduce){
+    *{animation-duration:.001s !important;animation-iteration-count:1 !important;transition-duration:.2s !important;}
+  }
+</style>
+</head>
+<body>
+
+<div id="cursorGlow"></div>
+
+<header class="nav">
+  <div class="wrap">
+    <div class="logo"><span class="logo-mark"></span>FORM-A</div>
+    <div class="nav-meta">
+      <span class="mono">Ещё нет аккаунта?</span>
+      <button type="button" class="btn btn-ghost btn-sm">Регистрация</button>
+    </div>
+  </div>
+</header>
+
+<main class="auth">
+
+  <section class="auth-side">
+    <div class="auth-side-top">
+      <div class="eyebrow">
+        <span class="eyebrow-badge">FORM-A</span>
+        <span class="eyebrow-divider"></span>
+        <span class="eyebrow-label">AI 3D Engine</span>
+      </div>
+      <h1>С возвращением. <br>Ваша <span class="serif">форма</span><br>уже ждёт.</h1>
+    </div>
+
+    <div class="auth-visual">
+      <div class="auth-glow"></div>
+      <div class="auth-rings">
+        <svg viewBox="0 0 100 100">
+          <ellipse class="ring ring1" cx="50" cy="50" rx="46" ry="18"/>
+          <ellipse class="ring ring2 ring-dash" cx="50" cy="50" rx="38" ry="38"/>
+        </svg>
+      </div>
+      <div class="auth-canvas-wrap"><canvas id="authCanvas"></canvas></div>
+    </div>
+
+    <div class="auth-side-bottom">
+      <p class="auth-quote">«<b>FORM-A</b> стала частью нашего ежедневного препродакшна — от быстрых набросков до финальных мешей.» <br><span class="mono" style="margin-top:8px;display:inline-block;">PRISM VFX</span></p>
+      <div class="auth-steps">
+        <div class="step active">Вход</div>
+        <div class="step">Prompt</div>
+        <div class="step">Generate</div>
+        <div class="step">Export</div>
+      </div>
+    </div>
+  </section>
+
+  <section class="auth-form-side">
+    <div class="auth-card fade-up" data-delay="0" id="authCard">
+      <div class="auth-card-head">
+        <span class="mono">Вход в аккаунт</span>
+        <h2>Рады <span class="serif">видеть</span> снова</h2>
+        <p>Войдите, чтобы продолжить работу над своими моделями.</p>
+      </div>
+
+      <form id="loginForm" novalidate>
+        <div class="field">
+          <label for="logEmail">Email</label>
+          <div class="field-input">
+            <input type="email" id="logEmail" name="email" placeholder="you@company.com" autocomplete="email" required>
+          </div>
+          <span class="field-hint error" id="emailError" style="visibility:hidden;">Введите корректный email</span>
+        </div>
+
+        <div class="field">
+          <label for="logPass">Пароль</label>
+          <div class="field-input">
+            <input type="password" id="logPass" name="password" placeholder="Введите пароль" autocomplete="current-password" required>
+            <button type="button" class="toggle-pass" data-target="logPass">Показать</button>
+          </div>
+          <span class="field-hint error" id="passError" style="visibility:hidden;">Неверный пароль</span>
+        </div>
+
+        <div class="remember-row">
+          <div class="field-check">
+            <input type="checkbox" id="logRemember" name="remember">
+            <label for="logRemember">Запомнить меня</label>
+          </div>
+          <button type="button" class="forgot-link">Забыли пароль?</button>
+        </div>
+
+        <button type="submit" class="btn btn-primary">Войти <span class="arrow">→</span></button>
+      </form>
+
+      <div class="divider"><span>или через</span></div>
+
+      <div class="oauth-row">
+        <button type="button" class="btn btn-ghost">
+          <svg viewBox="0 0 24 24"><path fill="currentColor" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92a5.06 5.06 0 0 1-2.2 3.32v2.77h3.57c2.08-1.92 3.27-4.74 3.27-8.1z"/><path fill="currentColor" d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.99.66-2.25 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.85A11 11 0 0 0 12 23z"/><path fill="currentColor" d="M5.84 14.1A6.6 6.6 0 0 1 5.5 12c0-.73.12-1.44.34-2.1V7.05H2.18A11 11 0 0 0 1 12c0 1.77.42 3.45 1.18 4.95l3.66-2.85z"/><path fill="currentColor" d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1a11 11 0 0 0-9.82 6.05l3.66 2.85C6.71 7.3 9.14 5.38 12 5.38z"/></svg>
+          Google
+        </button>
+        <button type="button" class="btn btn-ghost">
+          <svg viewBox="0 0 24 24"><path fill="currentColor" d="M12 .3a12 12 0 0 0-3.79 23.4c.6.11.82-.26.82-.58v-2.02c-3.34.73-4.04-1.6-4.04-1.6-.55-1.38-1.33-1.76-1.33-1.76-1.09-.74.08-.73.08-.73 1.2.09 1.84 1.24 1.84 1.24 1.07 1.83 2.8 1.3 3.49.99.11-.78.42-1.3.76-1.6-2.67-.3-5.47-1.33-5.47-5.93 0-1.31.47-2.38 1.24-3.22-.13-.3-.54-1.53.12-3.18 0 0 1.01-.32 3.3 1.23a11.5 11.5 0 0 1 6.02 0c2.29-1.55 3.3-1.23 3.3-1.23.66 1.65.25 2.88.12 3.18.77.84 1.24 1.91 1.24 3.22 0 4.61-2.8 5.63-5.48 5.93.43.37.81 1.1.81 2.22v3.29c0 .32.22.7.83.58A12 12 0 0 0 12 .3z"/></svg>
+          GitHub
+        </button>
+      </div>
+    </div>
+  </section>
+
+</main>
+
+<footer class="mini">
+  <div class="wrap mini-row">
+    <span>© 2026 FORM-A</span>
+    <span>Все данные передаются по защищённому соединению</span>
+  </div>
+</footer>
+
+<script>
+  const reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+  // entrance
+  document.querySelectorAll('.fade-up').forEach(el=>{
+    setTimeout(()=> el.classList.add('in-view'), 150);
+  });
+
+  // cursor glow
+  const cursorGlow = document.getElementById('cursorGlow');
+  const isFinePointer = window.matchMedia('(pointer:fine)').matches;
+  if(cursorGlow && isFinePointer && !reduceMotion){
+    let cgX=window.innerWidth/2, cgY=window.innerHeight/2, curX=cgX, curY=cgY;
+    window.addEventListener('mousemove', (e)=>{ cgX=e.clientX; cgY=e.clientY; });
+    (function loop(){
+      curX += (cgX-curX)*0.12; curY += (cgY-curY)*0.12;
+      cursorGlow.style.transform = `translate(${curX}px, ${curY}px) translate(-50%,-50%)`;
+      requestAnimationFrame(loop);
+    })();
+  } else if(cursorGlow){ cursorGlow.style.display='none'; }
+
+  // show/hide password
+  document.querySelectorAll('.toggle-pass').forEach(btn=>{
+    btn.addEventListener('click', ()=>{
+      const target = document.getElementById(btn.dataset.target);
+      const show = target.type === 'password';
+      target.type = show ? 'text' : 'password';
+      btn.textContent = show ? 'Скрыть' : 'Показать';
+    });
+  });
+
+  // simple client-side validation feel (placeholder — wire up to your backend)
+  const emailInput = document.getElementById('logEmail');
+  const passInput = document.getElementById('logPass');
+  const emailError = document.getElementById('emailError');
+  const passError = document.getElementById('passError');
+  const emailPattern = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+
+  emailInput.addEventListener('input', ()=>{
+    emailError.style.visibility = (emailInput.value && !emailPattern.test(emailInput.value)) ? 'visible' : 'hidden';
+  });
+
+  document.getElementById('loginForm').addEventListener('submit', (e)=>{
+    e.preventDefault();
+    let valid = true;
+    if(!emailPattern.test(emailInput.value)){
+      emailError.style.visibility = 'visible';
+      valid = false;
+    }
+    if(!passInput.value){
+      passError.style.visibility = 'visible';
+      valid = false;
+    } else {
+      passError.style.visibility = 'hidden';
+    }
+    if(!valid) return;
+
+    const btn = e.target.querySelector('button[type="submit"]');
+    btn.textContent = 'Входим…';
+    btn.style.opacity = '0.7';
+    setTimeout(()=>{
+      btn.innerHTML = 'Готово ✓';
+    }, 900);
+  });
+
+  // rotating cube/sphere morph — same generator as the register/landing hero, smaller scale
+  (function(){
+    const canvas = document.getElementById('authCanvas');
+    if(!canvas) return;
+    const ctx = canvas.getContext('2d');
+    let w, h, dpr, cx, cy, scaleR;
+    const focal = 6.2;
+    const N = 7;
+    const quads = [];
+    const cubeBase = [];
+
+    function addFace(axis, sign){
+      const startIndex = cubeBase.length;
+      for(let j=0;j<N;j++){
+        for(let i=0;i<N;i++){
+          const u = -1 + (2*i)/(N-1);
+          const v = -1 + (2*j)/(N-1);
+          let x,y,z;
+          if(axis==='x'){ x=sign; y=u; z=v; }
+          else if(axis==='y'){ y=sign; x=u; z=v; }
+          else { z=sign; x=u; y=v; }
+          cubeBase.push([x,y,z]);
+        }
+      }
+      for(let j=0;j<N-1;j++){
+        for(let i=0;i<N-1;i++){
+          const a = startIndex + j*N + i;
+          const b = startIndex + j*N + i+1;
+          const c = startIndex + (j+1)*N + i+1;
+          const d = startIndex + (j+1)*N + i;
+          quads.push([a,b,c,d]);
+        }
+      }
+    }
+    addFace('x',1); addFace('x',-1);
+    addFace('y',1); addFace('y',-1);
+    addFace('z',1); addFace('z',-1);
+
+    const sphereBase = cubeBase.map(([x,y,z])=>{
+      const len = Math.sqrt(x*x+y*y+z*z) || 1;
+      return [x/len, y/len, z/len];
+    });
+    const lightDir = (()=>{
+      const l = [0.45,-0.6,0.66];
+      const len = Math.sqrt(l[0]*l[0]+l[1]*l[1]+l[2]*l[2]);
+      return [l[0]/len, l[1]/len, l[2]/len];
+    })();
+
+    function resize(){
+      const rect = canvas.getBoundingClientRect();
+      dpr = Math.min(window.devicePixelRatio || 1, 2);
+      canvas.width = rect.width * dpr;
+      canvas.height = rect.height * dpr;
+      ctx.setTransform(dpr,0,0,dpr,0,0);
+      w = rect.width; h = rect.height;
+      cx = w/2; cy = h/2;
+      const maxCornerDist = Math.sqrt(3);
+      const maxPersp = focal / (focal - maxCornerDist);
+      const safeR = Math.min(w,h) * 0.44;
+      scaleR = safeR / (maxCornerDist * maxPersp);
+    }
+    resize();
+    window.addEventListener('resize', resize);
+
+    let t = 0;
+    function frame(){
+      t += 0.017;
+      ctx.clearRect(0,0,w,h);
+      const morph = (Math.sin(t*0.55)+1)/2;
+      const ay = t*0.85;
+      const ax = Math.sin(t*0.42)*0.5 + 0.35;
+      const cosY=Math.cos(ay), sinY=Math.sin(ay);
+      const cosX=Math.cos(ax), sinX=Math.sin(ax);
+
+      const proj = new Array(cubeBase.length);
+      for(let i=0;i<cubeBase.length;i++){
+        const cb = cubeBase[i], sb = sphereBase[i];
+        let x = cb[0] + (sb[0]-cb[0])*morph;
+        let y = cb[1] + (sb[1]-cb[1])*morph;
+        let z = cb[2] + (sb[2]-cb[2])*morph;
+        let x1 = x*cosY + z*sinY;
+        let z1 = -x*sinY + z*cosY;
+        let y1 = y*cosX - z1*sinX;
+        let z2 = y*sinX + z1*cosX;
+        const persp = focal/(focal+z2);
+        proj[i] = { sx: cx + x1*scaleR*persp, sy: cy + y1*scaleR*persp, z: z2, rx:x1, ry:y1, rz:z2 };
+      }
+
+      const drawList = quads.map(q=>{
+        const p0=proj[q[0]], p1=proj[q[1]], p2=proj[q[2]], p3=proj[q[3]];
+        const avgZ = (p0.z+p1.z+p2.z+p3.z)/4;
+        const ex=p1.rx-p0.rx, ey=p1.ry-p0.ry, ez=p1.rz-p0.rz;
+        const fx=p3.rx-p0.rx, fy=p3.ry-p0.ry, fz=p3.rz-p0.rz;
+        let nx = ey*fz - ez*fy, ny = ez*fx - ex*fz, nz = ex*fy - ey*fx;
+        const nlen = Math.sqrt(nx*nx+ny*ny+nz*nz) || 1;
+        nx/=nlen; ny/=nlen; nz/=nlen;
+        const dot = nx*lightDir[0] + ny*lightDir[1] + nz*lightDir[2];
+        const fillDot = Math.max(0, -nx*0.3 + ny*0.4 - nz*0.5);
+        const spec = Math.pow(Math.max(0,dot), 7);
+        const fresnel = Math.pow(1 - Math.min(1, Math.abs(nz)), 2.5) * 0.22;
+        const bright = Math.max(0.1, Math.min(1, dot*0.7 + 0.16 + fillDot*0.14 + spec*0.55 + fresnel));
+        return {p0,p1,p2,p3,avgZ,bright,spec,facing:dot};
+      }).sort((a,b)=> b.avgZ - a.avgZ);
+
+      for(let i=0;i<drawList.length;i++){
+        const q = drawList[i];
+        if(q.facing <= 0.03) continue;
+        const v = Math.round(16 + Math.pow(q.bright,1.35)*222);
+        ctx.beginPath();
+        ctx.moveTo(q.p0.sx,q.p0.sy);
+        ctx.lineTo(q.p1.sx,q.p1.sy);
+        ctx.lineTo(q.p2.sx,q.p2.sy);
+        ctx.lineTo(q.p3.sx,q.p3.sy);
+        ctx.closePath();
+        if(q.spec > 0.35){ ctx.shadowColor = `rgba(255,255,255,${q.spec*0.6})`; ctx.shadowBlur = 5; }
+        else{ ctx.shadowBlur = 0; }
+        ctx.fillStyle = `rgb(${v},${v},${v})`;
+        ctx.fill();
+        ctx.shadowBlur = 0;
+        ctx.strokeStyle = `rgba(0,0,0,${0.2 + (1-q.bright)*0.32})`;
+        ctx.lineWidth = 1;
+        ctx.stroke();
+      }
+      if(!reduceMotion) requestAnimationFrame(frame);
+    }
+    frame();
+  })();
+</script>
+
+</body>
+</html>
